@@ -1,4 +1,3 @@
----------------------
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,19 +5,29 @@ metadata:
   
 spec:
   replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
   selector:
     matchLabels:
-      app: hello-dep 
-
+      app: hello-dep
   template:
     metadata:
       labels:
         app: hello-dep
     spec:
       containers:
-      - image: gcr.io/google-samples/hello-app:1.0
+      - image: gcr.io/google-samples/hello-app:2.0
         imagePullPolicy: Always
         name: hello-dep
         ports:
         - containerPort: 8080
-------------------------
+        readinessProbe:
+          httpGet:
+             path: /
+             port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
